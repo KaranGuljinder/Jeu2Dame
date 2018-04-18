@@ -54,27 +54,20 @@ int main(int argc , char *argv[])
     //Receive a message from client
     while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
     {
-        
-	printf("%s\n",client_message);
 	
-	//Send the message back to client
- 	printf("Enter message : ");
-        scanf("%s" , message);
-	//send(sock , message , strlen(message)       
- 	//write(client_sock , client_message , strlen(client_message));
-	
-	 if( send(socket_desc , message , strlen(message) , 0) < 0)
-        {
-            puts("Send failed");
-            return 1;
-        }
-         
-        //Receive a reply from the server
-        if( recv(socket_desc , client_message , 2000 , 0) < 0)
-        {
-            puts("recv failed");
-            break;
-        }
+	while(1){        
+		
+		printf("Message du client : %s\n", client_message);
+        	printf("Enter message : ");
+        	scanf("%s" , message);
+
+	   
+        	//Send some data
+        	send(client_sock  , message , strlen(message) , 0);
+        	recv(client_sock , client_message , 2000 , 0);
+
+	}
+
     }
      
     if(read_size == 0)

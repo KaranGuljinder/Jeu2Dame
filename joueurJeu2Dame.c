@@ -56,6 +56,8 @@ int main(int argc , char *argv[])
          
         puts("Server reply :");
         puts(server_reply);
+
+        server_reply[0] = '\0'; 
     }
      
     close(sock);
