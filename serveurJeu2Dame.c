@@ -6,49 +6,86 @@
 #include <unistd.h>
 
 
-int main (void){
- 	
-	char tailleMessage[100];
- 	int socket_fd, connexion, identification, ecoute;
- 	struct sockaddr_in servaddr;
- 
- 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
- 	if(socket != -1){
- 		printf("Création d'un socket\n");
- 	}else{
-		printf("Erreur de création du socket\n");
-	}
+int main(int argc , char *argv[])
+{
+    int socket_desc , client_sock , c , read_size;
+    struct sockaddr_in server , client;
+    char client_message[2000];
+    char message[2000];
+     
+    //Create socket
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    if (socket_desc == -1)
+    {
+        printf("Could not create socket");
+    }
+    puts("Socket created");
+     
+    //Prepare the sockaddr_in structure
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( 8888 );
+     
+    //Bind
+    if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
+    {
+        //print the error message
+        perror("bind failed. Error");
+        return 1;
+    }
+    puts("bind done");
+     
+    //Listen
+    listen(socket_desc , 3);
+     
+    //Accept and incoming connection
+    puts("Waiting for incoming connections...");
+    c = sizeof(struct sockaddr_in);
+     
+    //accept connection from an incoming client
+    client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+    if (client_sock < 0)
+    {
+        perror("accept failed");
+        return 1;
+    }
+    puts("Connection accepted");
+     
+    //Receive a message from client
+    while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
+    {
+        
+	printf("%s\n",client_message);
 	
-	bzero( &servaddr, sizeof(servaddr));
- 
-	servaddr.sin_family = AF_INET;
-    	servaddr.sin_addr.s_addr = htons(INADDR_ANY);
-    	servaddr.sin_port = htons(7777);
-
-	identification = bind(socket_fd, (struct sockaddr *) &servaddr, sizeof(servaddr));
-	if (identification == 0){
-		printf("Création d'un port de communication \n");
-	}else{
-		printf("Erreur impossible de le créer \n");	
-	}
-
-	ecoute = listen(socket_fd, 10);
-	if(ecoute == 0){
-		printf("Création d'une connexion \n");
-	}else{
-		printf("Impossible d'établir une connexion\n");
-	}
-
-	connexion = accept(socket_fd, (struct sockaddr*) NULL, NULL);
-	if(connexion == -1){
-		printf("Impossible d'avoir une connexion\n");			
+	//Send the message back to client
+ 	printf("Enter message : ");
+        scanf("%s" , message);
+	//send(sock , message , strlen(message)       
+ 	//write(client_sock , client_message , strlen(client_message));
 	
-	}else{
-		printf("Attente d'une connexion \n");
-	}
- 
-
-	
- 
-
+	 if( send(socket_desc , message , strlen(message) , 0) < 0)
+        {
+            puts("Send failed");
+            return 1;
+        }
+         
+        //Receive a reply from the server
+        if( recv(socket_desc , client_message , 2000 , 0) < 0)
+        {
+            puts("recv failed");
+            break;
+        }
+    }
+     
+    if(read_size == 0)
+    {
+        puts("Client disconnected");
+        fflush(stdout);
+    }
+    else if(read_size == -1)
+    {
+        perror("recv failed");
+    }
+     
+    return 0;
 }
