@@ -50,25 +50,25 @@ int main(int argc , char *argv[])
         return 1;
     }
     puts("Connection accepted");
-     
+	
+    int index = 0;	     
     //Receive a message from client
     while(read_size = read(client_sock , client_message , sizeof(client_message)) > 0 )
     {
-	
-	     
 		
+
+                printf("Read Size %d \n", read_size);
+	     		
 		printf("Message du client : %s\n", client_message);
         	printf("Enter message : ");
         	scanf("%s" , message);
 
 	   
         	//Send some data
-        	write(client_sock  , message , strlen(message));
-        	
-
+        	write(client_sock  , message , sizeof(message));
 	
-
-    }
+        	
+}
      
     if(read_size == 0)
     {

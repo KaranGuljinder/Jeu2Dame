@@ -33,22 +33,23 @@ int main(int argc , char *argv[])
     }
      
     puts("Connected\n");
-
+    int index = 0;	
     printf("Enter message : ");
     scanf("%s" , message);	
-    write(sock , message , strlen(message));	
+    write(sock , message , sizeof(message));	
      
     //keep communicating with server
     while(read_size = read(sock , server_reply , sizeof(server_reply)) > 0)
     {
-
+	
+	
 	//Receive a reply from the server        
 	printf("Server reply : %s\n",server_reply);
   	printf("Enter message : ");
         scanf("%s" , message);
          
         //Send some data
-        write(sock , message , strlen(message));
+        write(sock , message , sizeof(message));
      
     }
      
