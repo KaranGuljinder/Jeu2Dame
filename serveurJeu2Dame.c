@@ -52,10 +52,10 @@ int main(int argc , char *argv[])
     puts("Connection accepted");
      
     //Receive a message from client
-    while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
+    while(read_size = read(client_sock , client_message , sizeof(client_message)) > 0 )
     {
 	
-	while(1){        
+	     
 		
 		printf("Message du client : %s\n", client_message);
         	printf("Enter message : ");
@@ -63,10 +63,10 @@ int main(int argc , char *argv[])
 
 	   
         	//Send some data
-        	send(client_sock  , message , strlen(message) , 0);
-        	recv(client_sock , client_message , 2000 , 0);
+        	write(client_sock  , message , strlen(message));
+        	
 
-	}
+	
 
     }
      

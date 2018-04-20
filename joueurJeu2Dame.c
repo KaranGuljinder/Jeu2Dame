@@ -9,7 +9,7 @@
 
 int main(int argc , char *argv[])
 {
-    int sock;
+    int sock, read_size;
     struct sockaddr_in server;
     char message[1000] , server_reply[2000];
      
@@ -33,31 +33,23 @@ int main(int argc , char *argv[])
     }
      
     puts("Connected\n");
+
+    printf("Enter message : ");
+    scanf("%s" , message);	
+    write(sock , message , strlen(message));	
      
     //keep communicating with server
-    while(1)
+    while(read_size = read(sock , server_reply , sizeof(server_reply)) > 0)
     {
-        printf("Enter message : ");
+
+	//Receive a reply from the server        
+	printf("Server reply : %s\n",server_reply);
+  	printf("Enter message : ");
         scanf("%s" , message);
          
         //Send some data
-        if( send(sock , message , strlen(message) , 0) < 0)
-        {
-            puts("Send failed");
-            return 1;
-        }
-         
-        //Receive a reply from the server
-        if( recv(sock , server_reply , 2000 , 0) < 0)
-        {
-            puts("recv failed");
-            break;
-        }
-         
-        puts("Server reply :");
-        puts(server_reply);
-
-        server_reply[0] = '\0'; 
+        write(sock , message , strlen(message));
+     
     }
      
     close(sock);
