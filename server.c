@@ -10,7 +10,9 @@
 	
 #define PORT 4950
 #define BUFSIZE 1024
-
+extern int CPT = 0;
+extern int CLIENT_MAX = 2;
+ 
 void send_to_all(int j, int i, int sockfd, int nbytes_recvd, char *recv_buf, fd_set *master)
 {
 	if (FD_ISSET(j, master)){
@@ -42,22 +44,30 @@ void send_recv(int i, fd_set *master, int sockfd, int fdmax)
 	}	
 }
 		
-void connection_accept(fd_set *master, int *fdmax, int sockfd, struct sockaddr_in *client_addr)
-{
+void connection_accept(fd_set *master, int *fdmax, int sockfd, struct sockaddr_in *client_addr){
+	
 	socklen_t addrlen;
 	int newsockfd;
-	
 	addrlen = sizeof(struct sockaddr_in);
-	if((newsockfd = accept(sockfd, (struct sockaddr *)client_addr, &addrlen)) == -1) {
-		perror("accept");
-		exit(1);
-	}else {
-		FD_SET(newsockfd, master);
-		if(newsockfd > *fdmax){
+	if(CPT < CLIENT_MAX){		
+		if((newsockfd = accept(sockfd, (struct sockaddr *)client_addr, &addrlen)) == -1) {
+			perror("accept");
+			exit(1);
+		}else {
+			FD_SET(newsockfd, master);
+			CPT++;
+			if(newsockfd > *fdmax){
 			*fdmax = newsockfd;
+			}
+			if(CPT == 1){
+				printf("Premier joueur connecté : %s on port %d \n",inet_ntoa(client_addr->sin_addr), ntohs(client_addr->sin_port));
+				printf("Attente du deuxième joueur !\n");
+			}else if(CPT == 2){
+				printf("Deuxième joueur connecté : %s on port %d \n",inet_ntoa(client_addr->sin_addr), ntohs(client_addr->sin_port));
+				printf("Début du jeu ! \n");			
+			}
 		}
-		printf("Nouveau joueur  %s on port %d \n",inet_ntoa(client_addr->sin_addr), ntohs(client_addr->sin_port));
-	}
+	 }
 }
 	
 void connect_request(int *sockfd, struct sockaddr_in *my_addr)
