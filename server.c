@@ -7,15 +7,20 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include "damier.c";
 	
 #define PORT 4950
 #define BUFSIZE 1024
 extern int CPT = 0;
 extern int CLIENT_MAX = 2;
-extern char *send_buf = "Bonjour";
+extern char *send_buf = "Begin";
+extern char *send_buf1 = "Start";
 extern int lobby[5][5] = {{0}};
 extern int partie = 0;
 extern int joueur = 0;
+extern int start = 0;
+extern int start1 = 0;
+
 
 
 void send_to_all(int j, int i, int sockfd, int nbytes_recvd, char *recv_buf, fd_set *master)
@@ -35,10 +40,22 @@ void server_send(int j, int sockfd, fd_set *master)
 		if (j != sockfd) {
 			if (send(j, send_buf, BUFSIZE, 0) == -1) {
 				perror("send");
-			}
+			}	
 		}
 	}
 }
+
+void server_playerOne(int j, int sockfd, fd_set *master)
+{		
+	if (FD_ISSET(j, master)){
+		if (j != sockfd) {
+			if (send(j, send_buf1, BUFSIZE, 0) == -1) {
+				perror("send");
+			}	
+		}
+	}
+}
+
 		
 void send_recv(int i, fd_set *master, int sockfd, int fdmax)
 {
@@ -59,6 +76,9 @@ void send_recv(int i, fd_set *master, int sockfd, int fdmax)
 		}
 	}	
 }
+
+
+
 		
 void connection_accept(fd_set *master, int *fdmax, int sockfd, struct sockaddr_in *client_addr){
 	
@@ -96,8 +116,24 @@ void connection_accept(fd_set *master, int *fdmax, int sockfd, struct sockaddr_i
 				printf("Partie n°%d \n", partie);
 				CPT = 0;
 				for(j = 0; j <= *fdmax; j++){
-					server_send(j,sockfd,master);
+					server_send(j,sockfd,master);			
 				}
+				for(j = 0; j <= 4; j++){
+					server_playerOne(j,sockfd,master);					
+				}
+			    	
+				/*while(fin_de_partie !=1){ // tant que aucun joueur a remporter la partie 								
+					if(k%2 == 0){ // systeme pour faire 1 fois sur 2						
+
+					}else{
+	
+						for(j = 5; j <= *fdmax; j++){
+							server_playerTwo(j,sockfd,master);
+							k++;
+							server_pause(j,sockfd,master);			
+						}
+					}
+				}*/
 
 							
 			}
@@ -126,7 +162,7 @@ void connect_request(int *sockfd, struct sockaddr_in *my_addr)
 		perror("listen");
 		exit(1);
 	}
-	printf("\n Waiting for players...\n");
+	printf("\n En Attente de joueurs...\n");
 	fflush(stdout);
 }
 int main()
@@ -161,3 +197,4 @@ int main()
 	}
 	return 0;
 }
+

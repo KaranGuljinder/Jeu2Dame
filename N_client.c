@@ -7,27 +7,99 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+#include "damier.c"
 	
-#define BUFSIZE 1024
-		
+#define BUFSIZE 1024		
+int Damier2[10][10];
+
+
+
 void send_recv(int i, int sockfd)
 {
-	char send_buf[BUFSIZE];
+	char send_buf[BUFSIZE] = "Envoyé info";
 	char recv_buf[BUFSIZE];
 	int nbyte_recvd;
+
+
+
+// --------------- Afficher damier -----------------------	
+	nbyte_recvd = recv(sockfd, recv_buf, BUFSIZE, 0);
+	recv_buf[nbyte_recvd] = '\0';                	
+	if(damierIsDisplay == 0)
+		if (strcmp ("Begin", recv_buf) == 0) {				
+			printf("Nouvelle Partie !\n");				
+			initialisation_plateau(Damier2);
+			configuration_piont(Damier2);
+			afficher_plateau(Damier2);
+			damierIsDisplay = 1; 			
+		}
+	}
+// ---------------------------------------------------------
 	
-	if (i == 0){
-		fgets(send_buf, BUFSIZE, stdin);
-		if (strcmp(send_buf , "quit\n") == 0) {
-			exit(0);
-		}else
-			send(sockfd, send_buf, strlen(send_buf), 0);
-	}else {
+
+//----------- Afficher le jeu au 1er joeur -----------------
+	
+
+	if (strcmp ("Start", recv_buf) == 0) {				
+		jeu(1);
+		printf("Damier affiché\n");	
+		send(sockfd, send_buf, strlen(send_buf), 0);	
+
+	else if(i > 0){
 		nbyte_recvd = recv(sockfd, recv_buf, BUFSIZE, 0);
 		recv_buf[nbyte_recvd] = '\0';
 		printf("%s\n" , recv_buf);
-		fflush(stdout);
 	}
+
+   
+
+//----------------------------------------------------------
+ 
+	
+     
+	//if (i == 0){
+				
+		//fgets(send_buf, BUFSIZE, stdin);
+		//send_buf[] = "PlayOne";	
+	//	printf("Message : %s", send_buf);
+	//	if (strcmp(send_buf , "quit\n") == 0) {
+	//		exit(0);
+	//	}
+		//printf("MessageOne : %s\n",recv_buf);
+               //	if (strcmp ("Me\n", send_buf) == 0) {	   														
+			
+		//}	
+    			
+		      				
+		/*if (strcmp ("PlayTwo\n", send_buf) == 0) {						
+			printf("MessageTwo : %s\n",recv_buf);		      	
+			jeu(2);
+			
+		}*/
+		 
+		//else{
+		//	jeu(1);
+		//	send(sockfd, "OK", strlen("OK"), 0);	
+			//send(sockfd, send_buf, strlen(send_buf), 0);
+		//	}
+		
+	//}else {
+		
+	//	jeu(1);
+	//	send(sockfd, "OK", strlen("OK"), 0);
+
+		//if (strcmp ("OK", recv_buf) == 0) {				
+		//	printf("Nouvelle Partie !\n");				
+			
+		//}
+
+
+					
+				
+	//		fflush(stdout);
+
+	//}
+
 }
 		
 		
